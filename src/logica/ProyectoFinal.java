@@ -9,10 +9,11 @@ import java.net.*;
 import org.json.*;
 
 /**
- * Proyecto Final - Control de Faltas de Docentes
- * Versión con conexión PHP/MySQL vía HTTP (XAMPP)
+ * Proyecto Final - Control de Faltas de Docentes Versión con conexión PHP/MySQL
+ * vía HTTP (XAMPP)
  */
 public class ProyectoFinal extends JFrame {
+
     private CardLayout cardLayout;
     private JPanel panelPrincipal;
     private String usuarioLogueado = null;
@@ -80,29 +81,41 @@ public class ProyectoFinal extends JFrame {
         JButton btnVolver = new JButton("Volver al inicio");
 
         c.insets = new Insets(5, 5, 5, 5);
-        c.gridx = 0; c.gridy = 0; panel.add(lblUsuario, c);
-        c.gridx = 1; panel.add(txtUsuario, c);
-        c.gridx = 0; c.gridy = 1; panel.add(lblContrasena, c);
-        c.gridx = 1; panel.add(txtContrasena, c);
-        c.gridx = 0; c.gridy = 2; c.gridwidth = 2; panel.add(btnIngresar, c);
-        c.gridy = 3; panel.add(btnVolver, c);
+        c.gridx = 0;
+        c.gridy = 0;
+        panel.add(lblUsuario, c);
+        c.gridx = 1;
+        panel.add(txtUsuario, c);
+        c.gridx = 0;
+        c.gridy = 1;
+        panel.add(lblContrasena, c);
+        c.gridx = 1;
+        panel.add(txtContrasena, c);
+        c.gridx = 0;
+        c.gridy = 2;
+        c.gridwidth = 2;
+        panel.add(btnIngresar, c);
+        c.gridy = 3;
+        panel.add(btnVolver, c);
 
         btnIngresar.addActionListener(e -> {
-            String usuario = txtUsuario.getText();
-            String contrasena = new String(txtContrasena.getPassword());
+    String usuario = txtUsuario.getText();
+    String contrasena = new String(txtContrasena.getPassword());
 
-            String respuesta = enviarPOST(
-                    "http://localhost/faltas/login.php",
-                    "usuario=" + usuario + "&contrasena=" + contrasena
-            );
+    String respuesta = enviarPOST(
+            "http://localhost/faltas/login.php",
+            "usuario=" + usuario + "&contrasena=" + contrasena
+    );
 
-            if (respuesta != null && respuesta.contains("\"success\":true")) {
-                usuarioLogueado = usuario;
-                cardLayout.show(panelPrincipal, "faltasProtegidas");
-            } else {
-                JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos");
-            }
-        });
+    if (respuesta != null && respuesta.contains("✅ Inicio de sesión exitoso")) {
+        usuarioLogueado = usuario;
+        cardLayout.show(panelPrincipal, "faltasProtegidas");
+    } else {
+        JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos");
+    }
+});
+
+        
 
         btnVolver.addActionListener(e -> cardLayout.show(panelPrincipal, "inicio"));
         return panel;
@@ -115,7 +128,6 @@ public class ProyectoFinal extends JFrame {
         JTable tabla = new JTable(modelo);
         JScrollPane scroll = new JScrollPane(tabla);
 
-  
         String json = enviarPOST("http://localhost/faltas/listar_faltas.php", "");
         try {
             if (json != null && !json.isEmpty()) {
@@ -127,8 +139,7 @@ public class ProyectoFinal extends JFrame {
                         modelo.addRow(new Object[]{
                             f.getString("docente"),
                             f.getString("dias"),
-                            f.getString("motivo"),
-//                            f.getString("registrado_por")
+                            f.getString("motivo"), //                            f.getString("registrado_por")
                         });
                     }
                 }
@@ -149,10 +160,14 @@ public class ProyectoFinal extends JFrame {
             JButton btnAgregar = new JButton("Agregar Falta");
             JButton btnVolver = new JButton("Volver al inicio");
 
-            form.add(new JLabel("Docente:")); form.add(txtDocente);
-            form.add(new JLabel("Días:")); form.add(txtDias);
-            form.add(new JLabel("Motivo:")); form.add(txtMotivo);
-            form.add(btnAgregar); form.add(btnVolver);
+            form.add(new JLabel("Docente:"));
+            form.add(txtDocente);
+            form.add(new JLabel("Días:"));
+            form.add(txtDias);
+            form.add(new JLabel("Motivo:"));
+            form.add(txtMotivo);
+            form.add(btnAgregar);
+            form.add(btnVolver);
 
             btnAgregar.addActionListener(e -> {
                 if (usuarioLogueado == null) {
@@ -189,27 +204,45 @@ public class ProyectoFinal extends JFrame {
 
         return panel;
     }
-    private String enviarPOST(String url, String parametros) {
-        try {
-            URL servidor = new URL(url);
-            HttpURLConnection con = (HttpURLConnection) servidor.openConnection();
-            con.setRequestMethod("POST");
-            con.setDoOutput(true);
-            con.getOutputStream().write(parametros.getBytes("UTF-8"));
 
-            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream(), "UTF-8"));
-            String inputLine;
-            StringBuilder respuesta = new StringBuilder();
-            while ((inputLine = in.readLine()) != null)
-                respuesta.append(inputLine);
-            in.close();
+   private String enviarPOST(String urlDestino, String parametros) {
+    HttpURLConnection conexion = null;
+    try {
+        // Crear la conexión
+        URL url = new URL(urlDestino);
+        conexion = (HttpURLConnection) url.openConnection();
+        conexion.setRequestMethod("POST");
+        conexion.setDoOutput(true);
+        conexion.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
 
-            return respuesta.toString();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al conectar con PHP: " + e.getMessage());
-            return null;
+        // Enviar los datos
+        try (OutputStream os = conexion.getOutputStream()) {
+            byte[] input = parametros.getBytes("UTF-8");
+            os.write(input, 0, input.length);
         }
+
+        // Leer la respuesta
+        BufferedReader br = new BufferedReader(
+                new InputStreamReader(conexion.getInputStream(), "UTF-8")
+        );
+        StringBuilder respuesta = new StringBuilder();
+        String linea;
+        while ((linea = br.readLine()) != null) {
+            respuesta.append(linea);
+        }
+
+        br.close();
+        return respuesta.toString();
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return null;
+    } finally {
+        if (conexion != null) conexion.disconnect();
     }
+}
+
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(ProyectoFinal::new);
     }
