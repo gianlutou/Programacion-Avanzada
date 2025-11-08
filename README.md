@@ -134,13 +134,16 @@ El sistema fue desarrollado utilizando **XAMPP**, por lo tanto se requiere insta
    - Crear una nueva base de datos con el nombre utilizado por el proyecto.  
    - Importar el archivo `.sql` proporcionado.
 
-4. **Configurar la conexión en NetBeans**  
+4. **Configurar archivos necesarios para la correcta conexion con la base de datos**  
+    Bueno ahora el paso que se debe de hacer es en esta direccion: "el nombre de tu almacenamiento"\xampp\htdocs y ahi crear una carpeta que se llame "faltas" y pegar dentro de ella los 5 archivos .php que se encuentran disponibles
+
+5. **Configurar la conexión en NetBeans**  
    Verificar que el proyecto tenga configurados correctamente:
    - URL de conexión  
    - Usuario  
    - Contraseña  
    Estos valores deben coincidir con la configuración de MySQL en XAMPP.
 
-5. **Ejecutar el proyecto**  
+6. **Ejecutar el proyecto**  
    Una vez iniciados los servicios y cargada la base de datos, simplemente abrir el proyecto en NetBeans y presionar Run.  
    El sistema debería iniciar sin necesitar pasos adicionales.
